@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="reset.css" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Gerador de Senha</title>
+</head>
+
+<body>
+  <main>
+    <section class="hero">
+      <h1 class="title">Gerador de senha</h1>
+      <p class="subTitle ">Utiize nosso gerador online para criar uma senha forte e segura.</p>
+    </section>
+
+    <section class="box">
+      <div class="password">
+        <div class="text">
+          <input type="text" name="password" id="password" />
+        </div>
+        <div class="actions">
+          <button id="copy-1">
+            <img src="copy.svg" alt="copy" width="42" />
+          </button>
+          <button id="renew">
+            <img src="renew.svg" alt="renew" width="42" />
+          </button>
+        </div>
+      </div>
+      <div class="security-indicator">
+        <div id="security-indicator-bar" class="bar critical"></div>
+      </div>
+    </section>
+    <section class="box customize">
+      <h3 class="title">Personalização</h3>
+      <div class="actions">
+        <div class="password-length">
+          <p>Tamnho:
+            <input type="number" value="16" id="password-length-text" max="64" min="4" maxlength="64" minlength="4"
+              class="password-length-text" />
+          </p>
+          <div class="maxmin">
+            <p>4</p>
+            <p>64</p>
+          </div>
+          <input type="range" name="password-length" id="password-length" class="slider" value="16" min="4" max="64" />
+        </div>
+        <div class="config">
+          <label class="checkbox-container">
+            <span class="text">Maiúsculas</span>
+            <input type="checkbox" id="uppercase-check" checked>
+            <span class="checkmark"></span>
+          </label>
+          <label class="checkbox-container">
+            <span class="text">Minúsculas
+            </span>
+            <input type="checkbox" id="lowcase-check" checked>
+            <span class="checkmark"></span>
+          </label>
+          <label class="checkbox-container">
+            <span class="text">Símbolos</span>
+            <input type="checkbox" id="symbol-check" checked>
+            <span class="checkmark"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+    <div class="submit">
+      <button id="copy-2">Copia senha</button>
+    </div>
+  </main>
+  <script>
+    const inputElement = document.querySelector("#password");
+    const upperCaseCheckEl = document.querySelector("#uppercase-check");
+    const lowCaseCheckEl = document.querySelector("#lowcase-check");
+    const symbolCheckEl = document.querySelector("#symbol-check");
+    const securityIndicatorBarEl = document.querySelector("#security-indicator-bar");
+
+    let passwordLength = 16;
+
+
+    function generatePassword() {
+      let chars = "0123456789";
+
+      const upperCaseChars = "ABCDEFGHIKLMNOPQRSTUWVXYZ";
+
+      const lowCaseChars = "abcdefghijklmnopqrstuvwxyz";
+
+      const symbolChars = "?!@$*()[]";
+
+      if (upperCaseCheckEl.checked) {
+        chars += upperCaseChars
+      }
+
+      if (lowCaseCheckEl.checked) {
+        chars += lowCaseChars
+      }
+
+      if (symbolCheckEl.checked) {
+        chars += symbolChars
+      }
+
+      let password = "";
+
+      for (let i = 0; i < passwordLength; i++) {
+        const randomNumber = Math.floor(Math.random() * chars.length);
+        password += chars.substring(randomNumber, randomNumber + 1);
+      }
+      inputElement.value = password;
+
+      calculateQuality();
+      calculateFontSize();
+    }
+
+    function calculateQuality() {
+      const percent = Math.round(
+        (((passwordLength / 64) * 100) * 0.25) + (upperCaseCheckEl.checked ? 15 : 0) + (lowCaseCheckEl.checked ? 15 : 0) + (symbolCheckEl.checked ? 45 : 0));
+
+      securityIndicatorBarEl.style.width = `${percent}%`;
+
+      if (percent > 69) {
+        securityIndicatorBarEl.classList.remove('critical')
+        securityIndicatorBarEl.classList.remove('warning')
+        securityIndicatorBarEl.classList.add('safe')
+      } else if (percent > 50) {
+        securityIndicatorBarEl.classList.remove('critical')
+        securityIndicatorBarEl.classList.remove('safe')
+        securityIndicatorBarEl.classList.add('warning')
+      } else {
+        securityIndicatorBarEl.classList.remove('warning')
+        securityIndicatorBarEl.classList.remove('safe')
+        securityIndicatorBarEl.classList.add('critical')
+      }
+
+      if (percent >= 100) {
+        securityIndicatorBarEl.classList.add('completed')
+      } else {
+        securityIndicatorBarEl.classList.remove('completed')
+      }
+    }
+
+    function calculateFontSize() {
+      if (passwordLength > 45) {
+        inputElement.classList.remove('font-sm')
+        inputElement.classList.remove('font-xs')
+        inputElement.classList.add('font-xxs')
+      } else if (passwordLength > 32) {
+        inputElement.classList.remove('font-sm')
+        inputElement.classList.remove('font-xxs')
+        inputElement.classList.add('font-xs')
+      } else if (passwordLength > 22) {
+        inputElement.classList.remove('font-xxs')
+        inputElement.classList.remove('font-xs')
+        inputElement.classList.add('font-sm')
+      } else {
+        inputElement.classList.remove('font-xxs')
+        inputElement.classList.remove('font-xs')
+        inputElement.classList.remove('font-sm')
+      }
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(inputElement.value);
+    }
+
+    const passwordLengthElement = document.getElementById("password-length");
+    const passwordLengthTextElement = document.getElementById("password-length-text");
+
+    const maxLength = parseInt(passwordLengthTextElement.getAttribute("max"));
+    const minLength = parseInt(passwordLengthTextElement.getAttribute("min"));
+
+    passwordLengthTextElement.addEventListener("input", function () {
+      let length = parseInt(passwordLengthTextElement.value);
+
+      if (length > maxLength) {
+        length = maxLength;
+      } else if (length < minLength) {
+        length = minLength;
+      }
+
+      passwordLengthTextElement.value = length;
+      passwordLengthElement.value = length;
+      generatePassword();
+    });
+
+    passwordLengthElement.addEventListener("input", function () {
+      passwordLength = passwordLengthElement.value;
+      passwordLengthTextElement.value = passwordLength;
+      generatePassword();
+    });
+
+    passwordLengthTextElement.addEventListener("input", function () {
+      passwordLength = passwordLengthTextElement.value;
+      passwordLengthElement.value = passwordLength;
+      generatePassword();
+    });
+
+    upperCaseCheckEl.addEventListener("click", generatePassword)
+    lowCaseCheckEl.addEventListener("click", generatePassword)
+    symbolCheckEl.addEventListener("click", generatePassword)
+
+    document.querySelector("#copy-1").addEventListener("click", copy);
+    document.querySelector("#copy-2").addEventListener("click", copy);
+    document.querySelector("#renew").addEventListener("click", generatePassword);
+
+
+    generatePassword();
+  </script>
+
+</body>
+
+</html>
